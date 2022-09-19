@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prestart": "rimraf bin && tsc && copyfiles -f src/index.html bin",
+    "prestart": "rimraf bin && tsc && copyfiles -f src/index.html src/favs.json bin",
     "start": "node bin/main.js"
   },
   "author": "Dylan Zemlin",
