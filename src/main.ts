@@ -10,10 +10,6 @@ app.get("/", (req, res) => {
 	return res.sendFile(`${__dirname}/index.html`);
 });
 
-app.get("/raw", (req, res) => {
-	return res.json(data);
-});
-
 /**
  * Gets all tweets and extracts specific fields (id, created_at, text)
  * Returns:
@@ -68,6 +64,12 @@ app.get("/users", (req, res) => {
 	}));
 });
 
+/**
+ * Creates a new tweet given a id and text
+ * Returns:
+ *  - 200: The new tweet (id, created_at, text)
+ *  - 400: The body was invalid (no id or text)
+ */
 app.post("/tweets", (req, res) => {
 	if (!req.body.text || !req.body.id) {
 		return res.status(400).json({ error: "invalid_body" });
@@ -80,11 +82,18 @@ app.post("/tweets", (req, res) => {
 	data?.push({
 		text: req.body.text,
 		id: req.body.id,
+		created_at: new Date().toISOString()
 	});
 
 	return res.status(201).end();
 });
 
+/**
+ * Updates a users screen name given a name and new screen name
+ * Returns:
+ * 	- 200: The user was updated successfully
+ * 	- 400: Invalid body (no new_name field)
+ */
 app.patch("/users/:name", (req, res) => {
 	if (!req.body.new_name	) {
 		return res.status(400).json({ error: "invalid_body" });
