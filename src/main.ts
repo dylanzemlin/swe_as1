@@ -1,13 +1,15 @@
 import express from "express";
 import fs from "fs";
+import path from "path";
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 let data: any[] | undefined = undefined;
 
-app.get("/", (req, res) => {
-	return res.sendFile(`${__dirname}/index.html`);
+app.get("/", (_, res) => {
+	return res.sendFile(path.join(__dirname, "..", "src/index.html"));
 });
 
 /**
@@ -15,7 +17,7 @@ app.get("/", (req, res) => {
  * Returns:
  * 	- 200: A list of tweets
  */
-app.get("/tweets", (req, res) => {
+app.get("/tweets", (_, res) => {
 	return res.json(data?.map((tweet: any) => {
 		return {
 			id: tweet.id,
@@ -50,14 +52,18 @@ app.get("/tweets/:id", (req, res) => {
  * Returns:
  *  - 200: The list of users
  */
-app.get("/users", (req, res) => {
+app.get("/users", (_, res) => {
 	// Map each tweet to acquire a list of users, 
 	// then filter out users to ensure there are no duplicates
 	return res.json(data?.map((tweet: any) => {
+		if (tweet.user == null) {
+			return undefined;
+		}
+
 		return {
-			id: tweet.user.id,
-			name: tweet.user.name,
-			screen_name: tweet.user.screen_name
+			id: tweet.user?.id,
+			name: tweet.user?.name,
+			screen_name: tweet.user?.screen_name
 		}
 	}).filter((user: any, index: number, self: any) => {
 		return self.findIndex((u: any) => u.id === user.id) === index;
@@ -94,14 +100,18 @@ app.post("/tweets", (req, res) => {
  * 	- 200: The user was updated successfully
  * 	- 400: Invalid body (no new_name field)
  */
-app.patch("/users/:name", (req, res) => {
-	if (!req.body.new_name	) {
+app.patch("/users", (req, res) => {
+	if (!req.body.screen_name || !req.body.name) {
 		return res.status(400).json({ error: "invalid_body" });
 	}
 
+	if(!data?.some(tweet => tweet.user?.name == req.body.name)) {
+		return res.status(404).json({ error: "no_user_found" });
+	}
+
 	data?.forEach((tweet: any) => {
-		if (tweet.user.screen_name == req.params.name) {
-			tweet.user.name = req.body.name;
+		if (tweet.user.name == req.body.name) {
+			tweet.user.screen_name = req.body.screen_name;
 		}
 	});
 
