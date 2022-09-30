@@ -1,7 +1,7 @@
 # Software Engineering - Project 1
 
 ## Requirements
- + [https://nodejs.org/en/](NodeJS) - The current LTS version of NodeJS
+ + https://nodejs.org/en/ - The current LTS version of NodeJS
 
 ## Instructions
 
