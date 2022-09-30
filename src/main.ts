@@ -2,12 +2,21 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 
+// Create express application using json parsing and a public folder
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
 
+// Read in favs.json
 let data: any[] | undefined = undefined;
+const favs = fs.readFileSync(`${__dirname}/favs.json`, "utf8");
+try {
+  data = JSON.parse(favs);
+} catch (e) {
+  console.error(e);
+}
 
+// Serve index.html on the route '/'
 app.get("/", (_, res) => {
 	return res.sendFile(path.join(__dirname, "..", "src/index.html"));
 });
@@ -134,12 +143,7 @@ app.delete("/tweets/:id", (req, res) => {
 	return res.json(tweet);
 })
 
+// Listen on port 3000 and log the url
 app.listen(3000, () => {
 	console.log(`Listening at: http://127.0.0.1:3000/`);
-	const input = fs.readFileSync(`${__dirname}/favs.json`, "utf8");
-	try {
-		data = JSON.parse(input);
-	} catch (e) {
-		console.error(e);
-	}
 });
