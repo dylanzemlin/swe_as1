@@ -64,6 +64,9 @@ app.get("/tweets/:id", (req, res) => {
 app.get("/users", (_, res) => {
 	// Map each tweet to acquire a list of users, 
 	// then filter out users to ensure there are no duplicates
+
+  // Undefined users had to be filtered out becuase 
+  // no user is inserted when a new tweet is created
 	return res.json(data?.map((tweet: any) => {
 		if (tweet.user == null) {
 			return undefined;
@@ -75,7 +78,11 @@ app.get("/users", (_, res) => {
 			screen_name: tweet.user?.screen_name
 		}
 	}).filter((user: any, index: number, self: any) => {
-		return self.findIndex((u: any) => u.id === user.id) === index;
+    if(self == null || user == null) {
+      return false;
+    }
+
+		return self.findIndex((u: any) => u?.id === user?.id) === index;
 	}));
 });
 
@@ -119,6 +126,10 @@ app.patch("/users", (req, res) => {
 	}
 
 	data?.forEach((tweet: any) => {
+    if(tweet.user == null) {
+      return;
+    }
+
 		if (tweet.user.name == req.body.name) {
 			tweet.user.screen_name = req.body.screen_name;
 		}
